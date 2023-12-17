@@ -243,6 +243,284 @@ For example, to create your first page, add a `page.js` file inside the `app` di
 export default function Page() {  return <h1>Hello, Next.js!</h1>}
 ```
 
+## Pages and Layouts
+
+> We recommend reading the [Routing Fundamentals](https://nextjs.org/docs/app/building-your-application/routing) and [Defining Routes](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) pages before continuing.
+
+The App Router inside Next.js 13 introduced new file conventions to easily create [pages](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#pages), [shared layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#layouts), and [templates](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#templates). This page will guide you through how to use these special files in your Next.js application.
+
+Next.js 13 中的 App Router 引入了新的文件约定，可以轻松创建[页面](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#pages)、[共享 布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#layouts)和模板。 本页面将指导您如何在 Next.js 应用程序中使用这些特殊文件。
+
+### [Pages](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#pages)
+
+A page is UI that is **unique** to a route. You can define pages by exporting a component from a `page.js` file. Use nested folders to [define a route](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and a `page.js` file to make the route publicly accessible.
+
+页面是路由独有的 UI。您可以通过从文件中导出组件来定义页面 "page.js" 。使用嵌套文件夹定义路由和 "page.js" 文件以使路由可公开访问。
+
+Create your first page by adding a `page.js` file inside the `app` directory:
+
+通过在目录中添加一个文件"page.js"来创建您的第一页 "app" ：
+
+![page.js special file](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Fpage-special-file.png&w=3840&q=75&dpl=dpl_BbSpPdzv9Yrsi74LnqWRCSDNSUNs)
+
+app/page.tsxapp/page.tsx
+
+
+
+```typescript
+// `app/page.tsx` is the UI for the `/` URL
+export default function Page() {
+  return <h1>Hello, Home page!</h1>
+}
+```
+
+
+
+app/dashboard/page.tsx
+
+```typescript
+// `app/dashboard/page.tsx` is the UI for the `/dashboard` URL
+export default function Page() {
+  return <h1>Hello, Dashboard Page!</h1>
+}
+```
+
+
+
+**Good to know**:
+
+您需要知道：
+
+- A page is always the 页面始终是[leaf叶子](https://nextjs.org/docs/app/building-your-application/routing#terminology) of the 的[route subtree路由子树](https://nextjs.org/docs/app/building-your-application/routing#terminology).。
+- `.js`, 、 `.jsx`, or 或 `.tsx` file extensions can be used for Pages. 文件扩展名可用于 Pages 文稿。
+- A `page.js` file is required to make a route segment publicly accessible. 需要文件才能使路由段可公开访问。
+- Pages are 默认情况下，页面是[Server Components服务器](https://nextjs.org/docs/app/building-your-application/rendering/server-components) by default but can be set to a 但可以设置为[Client Component客户端组件](https://nextjs.org/docs/app/building-your-application/rendering/client-components).。
+- Pages can fetch data. View the 页面可以提取数据。有关详细信息，请查看[Data Fetching“数据获取](https://nextjs.org/docs/app/building-your-application/data-fetching) section for more information.”部分。
+
+### [Layouts布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#layouts)
+
+A layout is UI that is **shared** between multiple pages. On navigation, layouts preserve state, remain interactive, and do not re-render. Layouts can also be [nested](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#nesting-layouts).
+
+布局是在 多个页面之间共享的 UI。在导航时，布局将保留状态，保持交互，并且不会重新呈现。布局也可以嵌套。
+
+You can define a layout by `default` exporting a React component from a `layout.js` file. The component should accept a `children` prop that will be populated with a child layout (if it exists) or a child page during rendering.
+
+您可以通过从文件中导出 React 组件"default"来定义布局 "layout.js" 。组件应接受一个"children"道具，该道具将在渲染期间填充子布局（如果存在）或子页面。
+
+![layout.js special file](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Flayout-special-file.png&w=3840&q=75&dpl=dpl_BbSpPdzv9Yrsi74LnqWRCSDNSUNs)
+
+
+
+app/dashboard/layout.tsx
+
+
+
+```typescript
+export default function DashboardLayout({
+  children, // will be a page or nested layout
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <section>
+      {/* Include shared UI here e.g. a header or sidebar */}
+      <nav></nav>
+ 
+      {children}
+    </section>
+  )
+}
+```
+
+> **Good to know**:
+>
+> 您需要知道：
+>
+> - The top-most layout is called the 最上面的布局称为[Root Layout根布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required). This 。此**required必需** layout is shared across all pages in an application. Root layouts must contain 的布局在应用程序的所有页面之间共享。根布局必须包含 `html` and 和 `body` tags. 标记。
+> - Any route segment can optionally define its own 任何路由段都可以选择定义自己的[Layout布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#nesting-layouts). These layouts will be shared across all pages in that segment.。这些布局将在该细分中的所有页面之间共享。
+> - Layouts in a route are 默认情况下，路由中的布局是**nested嵌套的** by default. Each parent layout wraps child layouts below it using the React 。每个父布局都使用 React 属性将子布局包装在其下方 `children` prop. 。
+> - You can use 您可以使用[Route Groups组](https://nextjs.org/docs/app/building-your-application/routing/route-groups) to opt specific route segments in and out of shared layouts.选择加入和退出共享布局的特定路由段。
+> - Layouts are 默认情况下，布局是[Server Components服务器](https://nextjs.org/docs/app/building-your-application/rendering/server-components) by default but can be set to a 但可以设置为[Client Component客户端组件](https://nextjs.org/docs/app/building-your-application/rendering/client-components).。
+> - Layouts can fetch data. View the 布局可以获取数据。有关详细信息，请查看[Data Fetching“数据获取](https://nextjs.org/docs/app/building-your-application/data-fetching) section for more information.”部分。
+> - Passing data between a parent layout and its children is not possible. However, you can fetch the same data in a route more than once, and React will 无法在父布局及其子布局之间传递数据。但是，您可以在路由中多次获取相同的数据，React 会自动[automatically dedupe the requests删除重复数据，](https://nextjs.org/docs/app/building-your-application/caching#request-memoization) without affecting performance.而不会影响性能。
+> - Layouts do not have access to the route segments below itself. To access all route segments, you can use 布局无权访问其下方的路径段。要访问所有路由段，您可以使用 [`useSelectedLayoutSegment`](https://nextjs.org/docs/app/api-reference/functions/use-selected-layout-segment) or 或 [`useSelectedLayoutSegments`](https://nextjs.org/docs/app/api-reference/functions/use-selected-layout-segments) in a Client Component. 在客户端组件中。
+> - `.js`, 、 `.jsx`, or 或 `.tsx` file extensions can be used for Layouts. 文件扩展名可用于布局。
+> - A A `layout.js` and 和 `page.js` file can be defined in the same folder. The layout will wrap the page. file 可以在同一文件夹中定义。布局将包裹页面。
+
+### [Root Layout (Required)根布局（必需）](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required)
+
+The root layout is defined at the top level of the `app` directory and applies to all routes. This layout enables you to modify the initial HTML returned from the server.
+
+根布局在目录的顶层定义"app"，并应用于所有路由。通过此布局，可以修改从服务器返回的初始 HTML。
+
+
+
+app/layout.tsx
+
+
+
+```typescript
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  )
+}
+```
+
+> **Good to know**:
+>
+> 您需要知道：
+>
+> - The 该 `app` directory 目录**must必须** include a root layout.包含根布局。
+> - The root layout must define 根布局必须定义 `<html>` and 和 `<body>` tags since Next.js does not automatically create them. 标记，因为 Next.js 不会自动创建它们。
+> - You can use the 您可以使用[built-in SEO support内置的 SEO 支持](https://nextjs.org/docs/app/building-your-application/optimizing/metadata) to manage 来管理 `<head>` HTML elements, for example, the HTML 元素，例如元素 `<title>` element. 。
+> - You can use 您可以使用[route groups路由组](https://nextjs.org/docs/app/building-your-application/routing/route-groups) to create multiple root layouts. See an 创建多个根布局。请参阅[example here此处的示例](https://nextjs.org/docs/app/building-your-application/routing/route-groups#creating-multiple-root-layouts).。
+> - The root layout is a 默认情况下，根布局是[Server Component服务器](https://nextjs.org/docs/app/building-your-application/rendering/server-components) by default and ，**can not不能** be set to a 设置为[Client Component客户端组件](https://nextjs.org/docs/app/building-your-application/rendering/client-components).。
+
+> **Migrating from the `pages` directory:** The root layout replaces the [`_app.js`](https://nextjs.org/docs/pages/building-your-application/routing/custom-app) and [`_document.js`](https://nextjs.org/docs/pages/building-your-application/routing/custom-document) files. [View the migration guide](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#migrating-_documentjs-and-_appjs).
+>
+> 从 "pages" 目录迁移：根布局将替换 "_app.js" 和 "_document.js" 文件。 查看迁移指南。
+
+### [Nesting Layouts嵌套布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#nesting-layouts)
+
+Layouts defined inside a folder (e.g. `app/dashboard/layout.js`) apply to specific route segments (e.g. `acme.com/dashboard`) and render when those segments are active. By default, layouts in the file hierarchy are **nested**, which means they wrap child layouts via their `children` prop.
+
+在文件夹（例如）中定义的布局"app/dashboard/layout.js"适用于特定的路由段（例如"acme.com/dashboard"），并在这些段处于活动状态时进行渲染。默认情况下，文件层次结构中的布局是嵌套的，这意味着它们通过其 prop 包装子布局 "children" 。
+
+![Nested Layout](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Fnested-layout.png&w=3840&q=75&dpl=dpl_BbSpPdzv9Yrsi74LnqWRCSDNSUNs)
+
+
+
+app/dashboard/layout.tsx
+
+```typescript
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return <section>{children}</section>
+}
+```
+
+> **Good to know**:
+>
+> 您需要知道：
+>
+> - Only the root layout can contain 只有根布局可以包含 `<html>` and 和 `<body>` tags. 标记。
+
+If you were to combine the two layouts above, the root layout (`app/layout.js`) would wrap the dashboard layout (`app/dashboard/layout.js`), which would wrap route segments inside `app/dashboard/*`.
+
+如果要组合上述两个布局，则根布局 （"app/layout.js"） 将包装仪表板布局 （"app/dashboard/layout.js"），后者会将路由段包装在 "app/dashboard/*".
+
+The two layouts would be nested as such:
+
+这两个布局将嵌套如下：
+
+![Nested Layouts](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Fnested-layouts-ui.png&w=3840&q=75&dpl=dpl_BbSpPdzv9Yrsi74LnqWRCSDNSUNs)
+
+You can use [Route Groups](https://nextjs.org/docs/app/building-your-application/routing/route-groups) to opt specific route segments in and out of shared layouts.
+
+您可以使用路由组选择加入和退出共享布局的特定路由段。
+
+### [Templates模板](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#templates)
+
+Templates are similar to layouts in that they wrap each child layout or page. Unlike layouts that persist across routes and maintain state, templates create a new instance for each of their children on navigation. This means that when a user navigates between routes that share a template, a new instance of the component is mounted, DOM elements are recreated, state is **not** preserved, and effects are re-synchronized.
+
+模板与布局类似，因为它们包装每个子布局或页面。与跨路由保留并保持状态的布局不同，模板在导航上为每个子级创建一个新实例。这意味着，当用户在共享模板的路由之间导航时，将装载组件的新实例，重新创建 DOM 元素，不保留状态，并重新同步效果。
+
+There may be cases where you need those specific behaviors, and templates would be a more suitable option than layouts. For example:
+
+在某些情况下，您可能需要这些特定行为，而模板将是比布局更合适的选项。例如：
+
+- Features that rely on 依赖于（ `useEffect` (e.g logging page views) and 例如记录页面浏览量）和 `useState` (e.g a per-page feedback form). （例如每页反馈表
+- To change the default framework behavior. For example, Suspense Boundaries inside layouts only show the fallback the first time the Layout is loaded and not when switching pages. For templates, the fallback is shown on each navigation.更改默认框架行为。例如，布局内的 Suspense Boundaries 仅在首次加载布局时显示回退，而不是在切换页面时显示回退。对于模板，回退显示在每个导航上。
+
+A template can be defined by exporting a default React component from a `template.js` file. The component should accept a `children` prop.
+
+可以通过从文件中导出默认的 React 组件来定义模板 "template.js" 。组件应该接受一个 "children" 道具。
+
+![template.js special file](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Ftemplate-special-file.png&w=3840&q=75&dpl=dpl_BbSpPdzv9Yrsi74LnqWRCSDNSUNs)
+
+
+
+app/template.tsx
+
+
+
+```typescript
+export default function Template({ children }: { children: React.ReactNode }) {
+  return <div>{children}</div>
+}
+```
+
+In terms of nesting, `template.js` is rendered between a layout and its children. Here's a simplified output:
+
+在嵌套方面， "template.js" 在布局及其子项之间呈现。下面是一个简化的输出：
+
+
+
+Output输出
+
+
+
+```typescript
+<Layout>
+  {/* Note that the template is given a unique key. */}
+  <Template key={routeParam}>{children}</Template>
+</Layout>
+```
+
+### [Modifying 修改``](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#modifying-head)
+
+In the `app` directory, you can modify the `<head>` HTML elements such as `title` and `meta` using the [built-in SEO support](https://nextjs.org/docs/app/building-your-application/optimizing/metadata).
+
+在 "app" 目录中，您可以修改 "<head>" HTML 元素，例如 "title" 并使用 "meta" 内置的 SEO 支持。
+
+Metadata can be defined by exporting a [`metadata` object](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#the-metadata-object) or [`generateMetadata` function](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#generatemetadata-function) in a [`layout.js`](https://nextjs.org/docs/app/api-reference/file-conventions/layout) or [`page.js`](https://nextjs.org/docs/app/api-reference/file-conventions/page) file.
+
+元数据可以通过导出 "metadata" or "generateMetadata" 文件中的对象"layout.js"或 "page.js" 函数来定义。
+
+
+
+app/page.tsx
+
+
+
+```typescript
+import { Metadata } from 'next'
+ 
+export const metadata: Metadata = {
+  title: 'Next.js',
+}
+ 
+export default function Page() {
+  return '...'
+}
+```
+
+> **Good to know**: You should **not** manually add `<head>` tags such as `<title>` and `<meta>` to root layouts. Instead, you should use the [Metadata API](https://nextjs.org/docs/app/api-reference/functions/generate-metadata) which automatically handles advanced requirements such as streaming and de-duplicating `<head>` elements.
+>
+> 您需要知道：您不应手动向"<head>"根布局添加标签，例如 "<title>" 和 "<meta>" 。相反，您应该使用元数据 API，它会自动处理高级要求，例如流式处理和重复数据删除 "<head>" 元素。
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
