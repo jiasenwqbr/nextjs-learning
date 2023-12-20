@@ -509,27 +509,183 @@ export default function Page() {
 >
 > 您需要知道：您不应手动向"<head>"根布局添加标签，例如 "<title>" 和 "<meta>" 。相反，您应该使用元数据 API，它会自动处理高级要求，例如流式处理和重复数据删除 "<head>" 元素。
 
+## Linking and Navigating
+
+There are two ways to navigate between routes in Next.js:
+
+有两种方法可以在 Next.js 中的路由之间导航：
+
+- Using the [`` Component](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#link-component)
+- Using the [`useRouter` Hook](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#userouter-hook)
+
+This page will go through how to use `<Link>`, `useRouter()`, and dive deeper into how navigation works.
+
+本页将介绍如何使用 "<Link>"、 "useRouter()"和 ，并深入探讨导航的工作原理。
+
+### [ Component元件](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#link-component)
+
+`<Link>` is a built-in component that extends the HTML `<a>` tag to provide [prefetching](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#1-prefetching) and client-side navigation between routes. It is the primary way to navigate between routes in Next.js.
+
+"<Link>" 是一个内置组件，它扩展了 HTML "<a>" 标记，以在路由之间提供预取和客户端导航。这是在 Next.js 中的路由之间导航的主要方式。
+
+You can use it by importing it from `next/link`, and passing a `href` prop to the component:
+
+您可以通过从 导入它"next/link"并将 "href" prop 传递给组件来使用它：
+
+app/page.tsxapp/page.tsx
+
+```typescript
+import Link from 'next/link'
+ 
+export default function Page() {
+  return <Link href="/dashboard">Dashboard</Link>
+}
+```
+
+There are other optional props you can pass to `<Link>`. See the [API reference](https://nextjs.org/docs/app/api-reference/components/link) for more.
+
+还有其他可选的道具可以传递给 "<Link>"。有关详细信息，请参阅 API 参考。
+
+#### [Examples例子](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#examples)
+
+##### [Linking to Dynamic Segments链接到动态区段](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#linking-to-dynamic-segments)
+
+When linking to [dynamic segments](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes), you can use [template literals and interpolation](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Template_literals) to generate a list of links. For example, to generate a list of blog posts:
+
+链接到动态区段时，您可以使用模板文字和插值来生成链接列表。例如，要生成博客文章列表：
+
+app/blog/PostList.js
+
+```typescript
+import Link from 'next/link'
+ 
+export default function PostList({ posts }) {
+  return (
+    <ul>
+      {posts.map((post) => (
+        <li key={post.id}>
+          <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+        </li>
+      ))}
+    </ul>
+  )
+}
+```
 
 
 
+#### [Checking Active Links检查活动链接](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#checking-active-links)
+
+You can use [`usePathname()`](https://nextjs.org/docs/app/api-reference/functions/use-pathname) to determine if a link is active. For example, to add a class to the active link, you can check if the current `pathname` matches the `href` of the link:
+
+您可以使用 "usePathname()" 它来确定链接是否处于活动状态。例如，要向活动链接添加类，可以检查当前链接是否 "pathname" 与 "href" 链接匹配：
+
+app/components/links.tsx
+
+```typescript
+'use client'
+ 
+import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+ 
+export function Links() {
+  const pathname = usePathname()
+ 
+  return (
+    <nav>
+      <ul>
+        <li>
+          <Link className={`link ${pathname === '/' ? 'active' : ''}`} href="/">
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link
+            className={`link ${pathname === '/about' ? 'active' : ''}`}
+            href="/about"
+          >
+            About
+          </Link>
+        </li>
+      </ul>
+    </nav>
+  )
+}
+```
+
+#### [Scrolling to an 滚动到`id`](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#scrolling-to-an-id)
+
+The default behavior of the Next.js App Router is to scroll to the top of a new route or to maintain the scroll position for backwards and forwards navigation.
+
+Next.js 应用路由器的默认行为是滚动到新路由的顶部或保持滚动位置以进行前后导航。
+
+If you'd like to scroll to a specific `id` on navigation, you can append your URL with a `#` hash link or just pass a hash link to the `href` prop. This is possible since `<Link>` renders to an `<a>` element.
+
+如果您想滚动到特定的 "id" 导航，您可以在 URL 后附加一个"#"哈希链接，或者只是将哈希链接传递给 "href" 道具。这是可能的，因为 "<Link>" 渲染到 "<a>" 元素。
+
+```typescript
+<Link href="/dashboard#settings">Settings</Link>
+ 
+// Output
+<a href="/dashboard#settings">Settings</a>
+```
+
+#### [Disabling scroll restoration禁用卷轴恢复](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#disabling-scroll-restoration)
+
+The default behavior of the Next.js App Router is to scroll to the top of a new route or to maintain the scroll position for backwards and forwards navigation. If you'd like to disable this behavior, you can pass `scroll={false}` to the `<Link>` component, or `scroll: false` to `router.push()` or `router.replace()`.
+
+Next.js 应用路由器的默认行为是滚动到新路由的顶部或保持滚动位置以进行前后导航。如果要禁用此行为，可以 "scroll={false}" "<Link>"传递给组件，或者 "scroll: false" 传递给 "router.push()" 或 "router.replace()"。
+
+```typescript
+// next/link
+<Link href="/dashboard" scroll={false}>
+  Dashboard
+</Link>
+```
+
+```typescript
+// useRouter
+import { useRouter } from 'next/navigation'
+ 
+const router = useRouter()
+ 
+router.push('/dashboard', { scroll: false })
+```
 
 
 
+## [`useRouter()` Hook钩](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#userouter-hook)
 
+The `useRouter` hook allows you to programmatically change routes.
 
+钩 "useRouter" 子允许您以编程方式更改路由。
 
+This hook can only be used inside Client Components and is imported from `next/navigation`.
 
+此挂钩只能在客户端组件内部使用，并且是从 "next/navigation" .
 
+app/page.js
 
+```typescript
+'use client'
+ 
+import { useRouter } from 'next/navigation'
+ 
+export default function Page() {
+  const router = useRouter()
+ 
+  return (
+    <button type="button" onClick={() => router.push('/dashboard')}>
+      Dashboard
+    </button>
+  )
+}
+```
 
+For a full list of `useRouter` methods, see the [API reference](https://nextjs.org/docs/app/api-reference/functions/use-router).
 
+有关方法的完整列表 "useRouter" ，请参阅 API 参考。
 
-
-
-
-
-
-
-
-
-
+> **Recommendation:** Use the `<Link>` component to navigate between routes unless you have a specific requirement for using `useRouter`.
+>
+> 建议：使用该 "<Link>" 组件在路由之间导航，除非您有使用 "useRouter".

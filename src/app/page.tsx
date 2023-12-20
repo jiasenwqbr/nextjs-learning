@@ -1,7 +1,9 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { Links } from "./components/links";
 import PostList from "./blog/PostList";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const postData = [
@@ -9,6 +11,7 @@ export default function Home() {
     { id: "2", slug: "bbbb", title: "bbb" },
     { id: "3", slug: "cccc", title: "ccc" },
   ];
+  const router = useRouter();
   return (
     <>
       <Link href="/dashboard">
@@ -17,6 +20,14 @@ export default function Home() {
       </Link>
       <Links></Links>
       <PostList posts={postData}></PostList>
+
+      <Link href="/dashboard#settings" scroll={true}>
+        Settings
+      </Link>
+      <br />
+      <button type="button" onClick={() => router.push("/dashboard")}>
+        dashboard
+      </button>
     </>
   );
 }
