@@ -652,9 +652,7 @@ const router = useRouter()
 router.push('/dashboard', { scroll: false })
 ```
 
-
-
-## [`useRouter()` Hook钩](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#userouter-hook)
+### [`useRouter()` Hook钩](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#userouter-hook)
 
 The `useRouter` hook allows you to programmatically change routes.
 
@@ -689,3 +687,202 @@ For a full list of `useRouter` methods, see the [API reference](https://nextjs.o
 > **Recommendation:** Use the `<Link>` component to navigate between routes unless you have a specific requirement for using `useRouter`.
 >
 > 建议：使用该 "<Link>" 组件在路由之间导航，除非您有使用 "useRouter".
+
+### [How Routing and Navigation Works路由和导航的工作原理](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#how-routing-and-navigation-works)
+
+The App Router uses a hybrid approach for routing and navigation. On the server, your application code is automatically code-split by route segments. And on the client, Next.js [prefetches](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#1-prefetching) and [caches](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#2-caching) the route segments. This means, when a user navigates to a new route, the browser doesn't reload the page, and only the route segments that change re-render - improving the navigation experience and performance.
+
+应用路由器使用混合方法进行路由和导航。在服务器上，应用程序代码会自动按路由段进行代码拆分。在客户端上，Next.js 预取并缓存路由段。这意味着，当用户导航到新路由时，浏览器不会重新加载页面，而只会重新呈现更改的路由段，从而改善导航体验和性能。
+
+#### [1. Prefetching1. 预取](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#1-prefetching)
+
+Prefetching is a way to preload a route in the background before the user visits it.
+
+预取是一种在用户访问路由之前在后台预加载路由的方法。
+
+There are two ways routes are prefetched in Next.js:
+
+在 Next.js 中有两种预取路由的方法：
+
+- **`<Link>` component component**: Routes are automatically prefetched as they become visible in the user's viewport. Prefetching happens when the page first loads or when it comes into view through scrolling.
+
+  当路由在用户视口中可见时，系统会自动预取它们。预取发生在页面首次加载或通过滚动进入视图时。
+
+- **`router.prefetch()`**: The ： `useRouter` hook can be used to prefetch routes programmatically. 
+
+  钩子可用于以编程方式预取路由。
+
+The`<Link>`'s prefetching behavior is different for static and dynamic routes:
+
+"<Link>"静态路由和动态路由的预取行为是不同的：
+
+- [**Static Routes静态路由**](https://nextjs.org/docs/app/building-your-application/rendering/server-components#static-rendering-default): ： `prefetch` defaults to 默认为 `true`. The entire route is prefetched and cached..
+
+  整个路由被预取和缓存。
+
+- [**Dynamic Routes动态路由**](https://nextjs.org/docs/app/building-your-application/rendering/server-components#dynamic-rendering): ： `prefetch` default to automatic. Only the shared layout down until the first `loading.js` file is prefetched and cached for `30s`. This reduces the cost of fetching an entire dynamic route, and it means you can show an [instant loading state](https://nextjs.org/docs/app/building-your-application/routing/loading-ui-and-streaming#instant-loading-states) for better visual feedback to users.
+
+  预取默认为自动。 仅共享布局，直到第一个loading.js文件被预取并缓存30秒。 这降低了获取整个动态路线的成本，这意味着您可以显示即时加载状态，以便为用户提供更好的视觉反馈。
+
+You can disable prefetching by setting the `prefetch` prop to `false`.
+
+您可以通过将 prop 设置为 来禁用预取 "prefetch" "false"。
+
+See the [`` API reference](https://nextjs.org/docs/app/api-reference/components/link) for more information.
+
+有关详细信息，请参阅 "<Link>" API 参考。
+
+> **Good to know**:
+>
+> 您需要知道：
+>
+> - Prefetching is not enabled in development, only in production.预取在开发中不启用，仅在生产中启用。
+
+#### [2. Caching2. 缓存](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#2-caching)
+
+Next.js has an **in-memory client-side cache** called the [Router Cache](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#caching-data#router-cache). As users navigate around the app, the React Server Component Payload of [prefetched](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#1-prefetching) route segments and visited routes are stored in the cache.
+
+Next.js 有一个 称为路由器缓存的内存中客户端缓存。当用户在应用程序中导航时，预取的路由段和访问的路由的 React Server 组件有效负载存储在缓存中。
+
+This means on navigation, the cache is reused as much as possible, instead of making a new request to the server - improving performance by reducing the number of requests and data transferred.
+
+这意味着在导航时，缓存会尽可能多地重用，而不是向服务器发出新的请求 - 通过减少请求和传输的数据数量来提高性能。
+
+Learn more about how the [Router Cache](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#caching-data) works and how to configure it.
+
+详细了解路由器缓存的工作原理以及如何配置它。
+
+#### [3. Partial Rendering3. 局部渲染](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#3-partial-rendering)
+
+Partial rendering means only the route segments that change on navigation re-render on the client, and any shared segments are preserved.
+
+部分呈现意味着仅在导航时更改的路由段在客户端上重新呈现，并保留所有共享段。
+
+For example, when navigating between two sibling routes, `/dashboard/settings` and `/dashboard/analytics`, the `settings` and `analytics` pages will be rendered, and the shared `dashboard` layout will be preserved.
+
+例如，在两个同级路由和 之间导航时 "/dashboard/settings" "/dashboard/analytics" "settings"，将呈现 和 "analytics" 页面，并保留共享 "dashboard" 布局。
+
+![How partial rendering works](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Fpartial-rendering.png&w=3840&q=75&dpl=dpl_FzRitTkPTYNpFnAXHp4g6Z2HpWQw)
+
+Without partial rendering, each navigation would cause the full page to re-render on the server. Rendering only the segment that changes reduces the amount of data transferred and execution time, leading to improved performance.
+
+如果不进行部分呈现，则每次导航都会导致整个页面在服务器上重新呈现。仅呈现更改的段可减少传输的数据量和执行时间，从而提高性能。
+
+#### [4. Soft Navigation4. 软导航](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#4-soft-navigation)
+
+By default, the browser performs a hard navigation between pages. This means the browser reloads the page and resets React state such as `useState` hooks in your app and browser state such as the user's scroll position or focused element. However, in Next.js, the App Router uses soft navigation. This means React only renders the segments that have changed while preserving React and browser state, and there is no full page reload.
+
+默认情况下，浏览器在页面之间执行硬导航。这意味着浏览器会重新加载页面并重置 React "useState" 状态（例如应用中的钩子）和浏览器状态（例如用户的滚动位置或焦点元素）。但是，在 Next.js 中，应用路由器使用软导航。这意味着 React 只渲染已更改的片段，同时保留 React 和浏览器状态，并且没有整页重新加载。
+
+#### [5. Back and Forward Navigation5. 后退和前进导航](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#5-back-and-forward-navigation)
+
+By default, Next.js will maintain the scroll position for backwards and forwards navigation, and re-use route segments in the [Router Cache](https://nextjs.org/docs/app/building-your-application/data-fetching/fetching-caching-and-revalidating#caching-data).
+
+默认情况下，Next.js 将保留向后和向前导航的滚动位置，并在路由器缓存中重用路由段。
+
+### Route Groups
+
+In the `app` directory, nested folders are normally mapped to URL paths. However, you can mark a folder as a **Route Group** to prevent the folder from being included in the route's URL path.
+
+在`app`目录中，嵌套文件夹通常映射到 URL 路径。但是，您可以将文件夹标记为**路由组**，以防止该文件夹包含在路由的 URL 路径中。
+
+This allows you to organize your route segments and project files into logical groups without affecting the URL path structure.
+
+这允许您将路线段和项目文件组织到逻辑组中，而不影响 URL 路径结构。
+
+Route groups are useful for:
+
+- [Organizing routes into groups](https://nextjs.org/docs/app/building-your-application/routing/route-groups#organize-routes-without-affecting-the-url-path) e.g. by site section, intent, or team.
+
+- Enabling
+
+   
+
+  nested layouts
+
+   
+
+  in the same route segment level:
+
+  - [Creating multiple nested layouts in the same segment, including multiple root layouts](https://nextjs.org/docs/app/building-your-application/routing/route-groups#creating-multiple-root-layouts)
+  - [Adding a layout to a subset of routes in a common segment](https://nextjs.org/docs/app/building-your-application/routing/route-groups#opting-specific-segments-into-a-layout)
+
+路由组可用于：
+
+- [将路线分组，](https://nextjs.org/docs/app/building-your-application/routing/route-groups#organize-routes-without-affecting-the-url-path)例如按站点部分、意图或团队。
+
+- 在同一路线段级别中启用
+
+  嵌套布局：
+
+  
+
+  - [在同一段中创建多个嵌套布局，包括多个根布局](https://nextjs.org/docs/app/building-your-application/routing/route-groups#creating-multiple-root-layouts)
+  - [将布局添加到公共路段中的路线子集](https://nextjs.org/docs/app/building-your-application/routing/route-groups#opting-specific-segments-into-a-layout)
+
+#### [Convention](https://nextjs.org/docs/app/building-your-application/routing/route-groups#convention)
+
+A route group can be created by wrapping a folder's name in parenthesis: `(folderName)`
+
+可以通过将文件夹名称括在括号中来创建路由组：`(folderName)`
+
+#### [Examples](https://nextjs.org/docs/app/building-your-application/routing/route-groups#examples)
+
+##### [Organize routes without affecting the URL path](https://nextjs.org/docs/app/building-your-application/routing/route-groups#organize-routes-without-affecting-the-url-path)
+
+To organize routes without affecting the URL, create a group to keep related routes together. The folders in parenthesis will be omitted from the URL (e.g. `(marketing)` or `(shop)`).
+
+##### [组织路由而不影响URL路径](https://nextjs.org/docs/app/building-your-application/routing/route-groups#organize-routes-without-affecting-the-url-path)
+
+要在不影响 URL 的情况下组织路由，请创建一个组以将相关路由保存在一起。URL 中将省略括号中的文件夹（例如`(marketing)`或`(shop)`）。
+
+![使用路由组组织路由](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Froute-group-organisation.png&w=3840&q=75&dpl=dpl_FzRitTkPTYNpFnAXHp4g6Z2HpWQw)
+
+Even though routes inside `(marketing)` and `(shop)` share the same URL hierarchy, you can create a different layout for each group by adding a `layout.js` file inside their folders.
+
+即使内部路由`(marketing)`共享`(shop)`相同的 URL 层次结构，您也可以通过`layout.js`在其文件夹内添加文件来为每个组创建不同的布局。
+
+![具有多种布局的路由组](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Froute-group-multiple-layouts.png&w=3840&q=75&dpl=dpl_FzRitTkPTYNpFnAXHp4g6Z2HpWQw)
+
+##### [Opting specific segments into a layout](https://nextjs.org/docs/app/building-your-application/routing/route-groups#opting-specific-segments-into-a-layout) 选择特定的部分到布局中
+
+To opt specific routes into a layout, create a new route group (e.g. `(shop)`) and move the routes that share the same layout into the group (e.g. `account` and `cart`). The routes outside of the group will not share the layout (e.g. `checkout`).
+
+要将特定路线选择到布局中，请创建一个新路线组（例如`(shop)`）并将共享相同布局的路线移动到该组中（例如`account`和`cart`）。组外的路线不会共享布局（例如`checkout`）。
+
+![具有选择加入布局的路由组](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Froute-group-opt-in-layouts.png&w=3840&q=75&dpl=dpl_FzRitTkPTYNpFnAXHp4g6Z2HpWQw)
+
+##### [Creating multiple root layouts](https://nextjs.org/docs/app/building-your-application/routing/route-groups#creating-multiple-root-layouts) 创建多个根布局
+
+To create multiple [root layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required), remove the top-level `layout.js` file, and add a `layout.js` file inside each route groups. This is useful for partitioning an application into sections that have a completely different UI or experience. The `<html>` and `<body>` tags need to be added to each root layout.
+
+要创建多个[根布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required)，请删除顶级`layout.js`文件，然后`layout.js`在每个路由组内添加一个文件。这对于将应用程序划分为具有完全不同的 UI 或体验的部分非常有用。`<html>`需要将 和标签`<body>`添加到每个根布局中。
+
+
+
+![Route Groups with Multiple Root Layouts](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Froute-group-multiple-root-layouts.png&w=3840&q=75&dpl=dpl_FzRitTkPTYNpFnAXHp4g6Z2HpWQw)
+
+
+
+In the example above, both `(marketing)` and `(shop)` have their own root layout.
+
+在上面的示例中， 和`(marketing)`都有`(shop)`自己的根布局。
+
+**Good to know**:
+
+- The naming of route groups has no special significance other than for organization. They do not affect the URL path.
+- Routes that include a route group **should not** resolve to the same URL path as other routes. For example, since route groups don't affect URL structure, `(marketing)/about/page.js` and `(shop)/about/page.js` would both resolve to `/about` and cause an error.
+- If you use multiple root layouts without a top-level `layout.js` file, your home `page.js` file should be defined in one of the route groups, For example: `app/(marketing)/page.js`.
+- Navigating **across multiple root layouts** will cause a **full page load** (as opposed to a client-side navigation). For example, navigating from `/cart` that uses `app/(shop)/layout.js` to `/blog` that uses `app/(marketing)/layout.js` will cause a full page load. This **only** applies to multiple root layouts.
+
+
+
+> **很高兴知道**：
+>
+> - 路由组的命名除了用于组织之外没有特殊意义。它们不影响 URL 路径。
+> - 包含路由组的路由**不应**解析为与其他路由相同的 URL 路径。例如，由于路由组不会影响 URL 结构，`(marketing)/about/page.js`因此`(shop)/about/page.js`会解析`/about`并导致错误。
+> - 如果您使用多个根布局而没有顶级`layout.js`文件，则您的主`page.js`文件应在其中一个路由组中定义，例如：`app/(marketing)/page.js`.
+> - **跨多个根布局**导航将导致**完整页面加载**（与客户端导航相反）。例如，从`/cart`该用途导航`app/(shop)/layout.js`到`/blog`该用途`app/(marketing)/layout.js`将导致整个页面加载。这**仅**适用于多个根布局。
+
+### Dynamic Routes 动态路由
+
