@@ -886,3 +886,127 @@ In the example above, both `(marketing)` and `(shop)` have their own root layout
 
 ### Dynamic Routes 动态路由
 
+When you don't know the exact segment names ahead of time and want to create routes from dynamic data, you can use Dynamic Segments that are filled in at request time or [prerendered](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#generating-static-params) at build time.
+
+当您事先不知道确切的路段名称并希望从动态数据创建路线时，您可以使用在请求时填充或在构建时[预渲染的动态路段。](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#generating-static-params)
+
+#### [Convention](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#convention)约定
+
+A Dynamic Segment can be created by wrapping a folder's name in square brackets: `[folderName]`. For example, `[id]` or `[slug]`.
+
+Dynamic Segments are passed as the `params` prop to [`layout`](https://nextjs.org/docs/app/api-reference/file-conventions/layout), [`page`](https://nextjs.org/docs/app/api-reference/file-conventions/page), [`route`](https://nextjs.org/docs/app/building-your-application/routing/route-handlers), and [`generateMetadata`](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#generatemetadata-function) functions.
+
+可以通过将文件夹名称括在方括号中来创建动态段：`[folderName]`。例如，`[id]`或`[slug]`。
+
+动态段作为 prop 传递`params`给[`layout`](https://nextjs.org/docs/app/api-reference/file-conventions/layout)、[`page`](https://nextjs.org/docs/app/api-reference/file-conventions/page)、[`route`](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)和[`generateMetadata`](https://nextjs.org/docs/app/api-reference/functions/generate-metadata#generatemetadata-function)函数。
+
+#### [Example](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#example)
+
+For example, a blog could include the following route `app/blog/[slug]/page.js` where `[slug]` is the Dynamic Segment for blog posts.
+
+app/blog/[slug]/page.tsx
+
+```typescript
+export default function Page({ params }: { params: { slug: string } }) {
+  return <div>My Post: {params.slug}</div>
+}
+```
+
+| Route                     | Example URL | `params`        |
+| ------------------------- | ----------- | --------------- |
+| `app/blog/[slug]/page.js` | `/blog/a`   | `{ slug: 'a' }` |
+| `app/blog/[slug]/page.js` | `/blog/b`   | `{ slug: 'b' }` |
+| `app/blog/[slug]/page.js` | `/blog/c`   | `{ slug: 'c' }` |
+
+See the [generateStaticParams()](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#generating-static-params) page to learn how to generate the params for the segment.
+
+> **Good to know**: Dynamic Segments are equivalent to [Dynamic Routes](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes) in the `pages` directory.
+
+#### [Generating Static Params](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#generating-static-params) 生成静态参数
+
+The `generateStaticParams` function can be used in combination with [dynamic route segments](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes) to [**statically generate**](https://nextjs.org/docs/app/building-your-application/rendering/server-components#static-rendering-default) routes at build time instead of on-demand at request time.
+
+该功能可以与[动态路由段](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes)`generateStaticParams`结合使用，在构建时[**静态生成**](https://nextjs.org/docs/app/building-your-application/rendering/server-components#static-rendering-default)路由，而不是在请求时按需生成路由。
+
+app/blog/[slug]/page.tsx
+
+```typescript
+export async function generateStaticParams() {
+  const posts = await fetch('https://.../posts').then((res) => res.json())
+ 
+  return posts.map((post) => ({
+    slug: post.slug,
+  }))
+}
+```
+
+The primary benefit of the `generateStaticParams` function is its smart retrieval of data. If content is fetched within the `generateStaticParams` function using a `fetch` request, the requests are [automatically memoized](https://nextjs.org/docs/app/building-your-application/caching#request-memoization). This means a `fetch` request with the same arguments across multiple `generateStaticParams`, Layouts, and Pages will only be made once, which decreases build times.
+
+Use the [migration guide](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#dynamic-paths-getstaticpaths) if you are migrating from the `pages` directory.
+
+See [`generateStaticParams` server function documentation](https://nextjs.org/docs/app/api-reference/functions/generate-static-params) for more information and advanced use cases.
+
+该功能的主要好处`generateStaticParams`是它可以智能地检索数据。`generateStaticParams`如果使用请求在函数内获取内容，则会[自动记住](https://nextjs.org/docs/app/building-your-application/caching#request-memoization)`fetch`请求。这意味着跨多个、布局和页面具有相同参数的请求只会发出一次，从而减少构建时间。`fetch``generateStaticParams`
+
+如果您要从目录迁移，请使用[迁移指南](https://nextjs.org/docs/app/building-your-application/upgrading/app-router-migration#dynamic-paths-getstaticpaths)`pages`。
+
+有关更多信息和高级用例，请参阅[`generateStaticParams`服务器功能文档。](https://nextjs.org/docs/app/api-reference/functions/generate-static-params)
+
+#### [Catch-all Segments](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#catch-all-segments)
+
+Dynamic Segments can be extended to **catch-all** subsequent segments by adding an ellipsis inside the brackets `[...folderName]`.
+
+For example, `app/shop/[...slug]/page.js` will match `/shop/clothes`, but also `/shop/clothes/tops`, `/shop/clothes/tops/t-shirts`, and so on.
+
+| Route                        | Example URL   | `params`                    |
+| ---------------------------- | ------------- | --------------------------- |
+| `app/shop/[...slug]/page.js` | `/shop/a`     | `{ slug: ['a'] }`           |
+| `app/shop/[...slug]/page.js` | `/shop/a/b`   | `{ slug: ['a', 'b'] }`      |
+| `app/shop/[...slug]/page.js` | `/shop/a/b/c` | `{ slug: ['a', 'b', 'c'] }` |
+
+#### [Optional Catch-all Segments](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#optional-catch-all-segments)
+
+Catch-all Segments can be made **optional** by including the parameter in double square brackets: `[[...folderName]]`.
+
+For example, `app/shop/[[...slug]]/page.js` will **also** match `/shop`, in addition to `/shop/clothes`, `/shop/clothes/tops`, `/shop/clothes/tops/t-shirts`.
+
+The difference between **catch-all** and **optional catch-all** segments is that with optional, the route without the parameter is also matched (`/shop` in the example above).
+
+| Route                          | Example URL   | `params`                    |
+| ------------------------------ | ------------- | --------------------------- |
+| `app/shop/[[...slug]]/page.js` | `/shop`       | `{}`                        |
+| `app/shop/[[...slug]]/page.js` | `/shop/a`     | `{ slug: ['a'] }`           |
+| `app/shop/[[...slug]]/page.js` | `/shop/a/b`   | `{ slug: ['a', 'b'] }`      |
+| `app/shop/[[...slug]]/page.js` | `/shop/a/b/c` | `{ slug: ['a', 'b', 'c'] }` |
+
+#### [TypeScript](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#typescript)
+
+When using TypeScript, you can add types for `params` depending on your configured route segment.
+
+app/blog/[slug]/page.tsx
+
+TypeScript
+
+```typescript
+export default function Loading() {
+  // You can add any UI inside Loading, including a Skeleton.
+  return <LoadingSkeleton />
+}
+```
+
+| Route                               | `params` Type Definition                 |
+| ----------------------------------- | ---------------------------------------- |
+| `app/blog/[slug]/page.js`           | `{ slug: string }`                       |
+| `app/shop/[...slug]/page.js`        | `{ slug: string[] }`                     |
+| `app/[categoryId]/[itemId]/page.js` | `{ categoryId: string, itemId: string }` |
+
+> **Good to know**: This may be done automatically by the [TypeScript plugin](https://nextjs.org/docs/app/building-your-application/configuring/typescript#typescript-plugin) in the future.
+
+
+
+
+
+
+
+
+
