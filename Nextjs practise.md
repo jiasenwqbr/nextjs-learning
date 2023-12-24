@@ -1006,6 +1006,47 @@ export default function Loading() {
 
 ### Loading UI and Streaming
 
+The special file `loading.js` helps you create meaningful Loading UI with [React Suspense](https://react.dev/reference/react/Suspense). With this convention, you can show an [instant loading state](https://nextjs.org/docs/app/building-your-application/routing/loading-ui-and-streaming#instant-loading-states) from the server while the content of a route segment loads. The new content is automatically swapped in once rendering is complete.
+
+特殊的文件loading.js可以帮助您使用React Suspense创建有意义的loading UI。使用此约定，可以在加载管段的内容时显示服务器的即时加载状态。渲染完成后，新内容将自动交换。
+
+![Loading UI](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Floading-ui.png&w=3840&q=75&dpl=dpl_BgDMtkMC7Ys3CBykeL1toqez4tqp)
+
+#### [Instant Loading States](https://nextjs.org/docs/app/building-your-application/routing/loading-ui-and-streaming#instant-loading-states)
+
+An instant loading state is fallback UI that is shown immediately upon navigation. You can pre-render loading indicators such as skeletons and spinners, or a small but meaningful part of future screens such as a cover photo, title, etc. This helps users understand the app is responding and provides a better user experience.
+
+Create a loading state by adding a `loading.js` file inside a folder.
+
+![loading.js special file](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Floading-special-file.png&w=3840&q=75&dpl=dpl_BgDMtkMC7Ys3CBykeL1toqez4tqp)
+
+app/dashboard/loading.tsx
+
+```typescript
+export default function Loading() {
+  // You can add any UI inside Loading, including a Skeleton.
+  return <LoadingSkeleton />
+}
+```
+
+In the same folder, `loading.js` will be nested inside `layout.js`. It will automatically wrap the `page.js` file and any children below in a `<Suspense>` boundary
+
+![loading.js overview](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Floading-overview.png&w=3840&q=75&dpl=dpl_BgDMtkMC7Ys3CBykeL1toqez4tqp)
+
+
+
+> **Good to know**:
+>
+> - Navigation is immediate, even with [server-centric routing](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#how-routing-and-navigation-works).
+> - Navigation is interruptible, meaning changing routes does not need to wait for the content of the route to fully load before navigating to another route.
+> - Shared layouts remain interactive while new route segments load.
+
+> **Recommendation:** Use the `loading.js` convention for route segments (layouts and pages) as Next.js optimizes this functionality.
+
+
+
+
+
 
 
 
