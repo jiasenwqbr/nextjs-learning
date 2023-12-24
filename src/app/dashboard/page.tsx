@@ -1,5 +1,6 @@
 import Link from "next/link";
 export default function Page() {
+  //throw new Error("the page error");
   return (
     <section>
       <h1 className={"text-3xl text-blue-500"}>Hello Dashboard Page</h1>

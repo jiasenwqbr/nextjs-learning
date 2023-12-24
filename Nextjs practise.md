@@ -1043,6 +1043,219 @@ In the same folder, `loading.js` will be nested inside `layout.js`. It will auto
 
 > **Recommendation:** Use the `loading.js` convention for route segments (layouts and pages) as Next.js optimizes this functionality.
 
+### Error Handling 错误处理
+
+The `error.js` file convention allows you to gracefully handle unexpected runtime errors in [nested routes](https://nextjs.org/docs/app/building-your-application/routing#nested-routes).
+
+error.js文件约定允许您优雅地处理嵌套路由中的意外运行时错误。
+
+- Automatically wrap a route segment and its nested children in a [React Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary).
+
+  自动将路由段及其嵌套的子级包装在React错误边界
+
+- Create error UI tailored to specific segments using the file-system hierarchy to adjust granularity.
+
+  使用文件系统层次结构创建针对特定段定制的错误 UI，以调整粒度。
+
+- Isolate errors to affected segments while keeping the rest of the application functional.
+
+  将错误隔离到受影响的段，同时保持应用程序的其余部分正常运行。
+
+- Add functionality to attempt to recover from an error without a full page reload.
+
+  添加功能以尝试从错误中恢复，而无需重新加载整个页面。
+
+Create error UI by adding an `error.js` file inside a route segment and exporting a React component:
+
+通过在路由段内添加文件并导出 React 组件"error.js"来创建错误 UI：
+
+![error.js special file](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Ferror-special-file.png&w=3840&q=75&dpl=dpl_BgDMtkMC7Ys3CBykeL1toqez4tqp)
+
+app/dashboard/error.tsx
+
+```typescript
+'use client' // Error components must be Client Components
+ 
+import { useEffect } from 'react'
+ 
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  useEffect(() => {
+    // Log the error to an error reporting service
+    console.error(error)
+  }, [error])
+ 
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button
+        onClick={
+          // Attempt to recover by trying to re-render the segment
+          () => reset()
+        }
+      >
+        Try again
+      </button>
+    </div>
+  )
+}
+```
+
+#### [How `error.js` Works](https://nextjs.org/docs/app/building-your-application/routing/error-handling#how-errorjs-works) 工作原理
+
+![How error.js works](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Ferror-overview.png&w=3840&q=75&dpl=dpl_BgDMtkMC7Ys3CBykeL1toqez4tqp)
+
+- `error.js` automatically creates a [React Error Boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary) that **wraps** a nested child segment or `page.js` component.
+
+  `error.js` 自动创建一个 [React 错误边界],**包装** 嵌套子段或“page.js”组件。
+
+- The React component exported from the `error.js` file is used as the **fallback** component.
+
+  从 `error.js` 文件导出的 React 组件用作 **fallback** 组件。
+
+- If an error is thrown within the error boundary, the error is **contained**, and the fallback component is **rendered**.
+
+  如果在错误边界内抛出错误，则该错误被**包含**，并且后备组件被**渲染**。
+
+- When the fallback error component is active, layouts **above** the error boundary **maintain** their state and **remain** interactive, and the error component can display functionality to recover from the error.
+
+  当回退错误组件处于活动状态时，错误边界上方**的布局将保持其状态并保持交互，并且错误组件可以显示从错误中恢复的功能。
+
+#### [Recovering From Errors](https://nextjs.org/docs/app/building-your-application/routing/error-handling#recovering-from-errors)
+
+The cause of an error can sometimes be temporary. In these cases, simply trying again might resolve the issue.
+
+错误的原因有时可能是暂时的。在这些情况下，只需重试即可解决问题。
+
+An error component can use the `reset()` function to prompt the user to attempt to recover from the error. When executed, the function will try to re-render the Error boundary's contents. If successful, the fallback error component is replaced with the result of the re-render.
+
+错误组件可以使用该 "reset()" 函数提示用户尝试从错误中恢复。执行时，该函数将尝试重新呈现 Error 边界的内容。如果成功，回退错误组件将替换为重新渲染的结果。
+
+app/dashboard/error.tsx
+
+```typescript
+'use client'
+ 
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button onClick={() => reset()}>Try again</button>
+    </div>
+  )
+}
+```
+
+#### [Nested Routes](https://nextjs.org/docs/app/building-your-application/routing/error-handling#nested-routes)嵌套路由
+
+React components created through [special files](https://nextjs.org/docs/app/building-your-application/routing#file-conventions) are rendered in a [specific nested hierarchy](https://nextjs.org/docs/app/building-your-application/routing#component-hierarchy).
+
+通过特殊文件创建的 React 组件在特定的嵌套层次结构中呈现。
+
+For example, a nested route with two segments that both include `layout.js` and `error.js` files are rendered in the following *simplified* component hierarchy:
+
+例如，具有两个段（包含 "layout.js" 和"error.js"文件）的嵌套路由在以下简化的组件层次结构中呈现：
+
+![Nested Error Component Hierarchy](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Fnested-error-component-hierarchy.png&w=3840&q=75&dpl=dpl_BgDMtkMC7Ys3CBykeL1toqez4tqp)
+
+The nested component hierarchy has implications for the behavior of `error.js` files across a nested route:
+
+嵌套组件层次结构对 "error.js" 嵌套路由中的文件行为有影响：
+
+- Errors bubble up to the nearest parent error boundary. This means an `error.js` file will handle errors for all its nested child segments. More or less granular error UI can be achieved by placing `error.js` files at different levels in the nested folders of a route.
+
+  错误向上冒泡到最近的父错误边界。 这意味着“error.js”文件将处理其所有嵌套子段的错误。 通过将“error.js”文件放置在路由的嵌套文件夹中的不同级别，可以实现或多或少的粒度错误 UI。
+
+- An `error.js` boundary will **not** handle errors thrown in a `layout.js` component in the **same** segment because the error boundary is nested **inside** that layout's component.
+
+  `error.js` 边界将 **不** 处理 **同一** 段中的 `layout.js` 组件中抛出的错误，因为错误边界嵌套在该布局组件的 **内部**。
+
+#### [Handling Errors in Layouts](https://nextjs.org/docs/app/building-your-application/routing/error-handling#handling-errors-in-layouts)
+
+`error.js` boundaries do **not** catch errors thrown in `layout.js` or `template.js` components of the **same segment**. This [intentional hierarchy](https://nextjs.org/docs/app/building-your-application/routing/error-handling#nested-routes) keeps important UI that is shared between sibling routes (such as navigation) visible and functional when an error occurs.
+
+To handle errors within a specific layout or template, place an `error.js` file in the layout's parent segment.
+
+To handle errors within the root layout or template, use a variation of `error.js` called `global-error.js`.
+
+#### [Handling Errors in Root Layouts](https://nextjs.org/docs/app/building-your-application/routing/error-handling#handling-errors-in-root-layouts)
+
+The root `app/error.js` boundary does **not** catch errors thrown in the root `app/layout.js` or `app/template.js` component.
+
+To specifically handle errors in these root components, use a variation of `error.js` called `app/global-error.js` located in the root `app` directory.
+
+Unlike the root `error.js`, the `global-error.js` error boundary wraps the **entire** application, and its fallback component replaces the root layout when active. Because of this, it is important to note that `global-error.js` **must** define its own `<html>` and `<body>` tags.
+
+`global-error.js` is the least granular error UI and can be considered "catch-all" error handling for the whole application. It is unlikely to be triggered often as root components are typically less dynamic, and other `error.js` boundaries will catch most errors.
+
+Even if a `global-error.js` is defined, it is still recommended to define a root `error.js` whose fallback component will be rendered **within** the root layout, which includes globally shared UI and branding.
+
+app/global-error.tsx
+
+```type
+'use client'
+ 
+export default function GlobalError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return (
+    <html>
+      <body>
+        <h2>Something went wrong!</h2>
+        <button onClick={() => reset()}>Try again</button>
+      </body>
+    </html>
+  )
+}
+```
+
+#### [Handling Server Errors](https://nextjs.org/docs/app/building-your-application/routing/error-handling#handling-server-errors)
+
+If an error is thrown inside a Server Component, Next.js will forward an `Error` object (stripped of sensitive error information in production) to the nearest `error.js` file as the `error` prop.
+
+如果在服务器组件中抛出错误，Next.js 会将对象（ "Error" 在生产环境中去除敏感错误信息）转发到最近的 "error.js" 文件作为 "error" 道具。
+
+##### [Securing Sensitive Error Information](https://nextjs.org/docs/app/building-your-application/routing/error-handling#securing-sensitive-error-information) 保护敏感错误信息
+
+During production, the `Error` object forwarded to the client only includes a generic `message` and `digest` property.
+
+在生产过程中， "Error" 转发到客户端的对象仅包含泛型 "message" 和 "digest" 属性。
+
+This is a security precaution to avoid leaking potentially sensitive details included in the error to the client.
+
+这是一项安全预防措施，可避免将错误中包含的潜在敏感详细信息泄露给客户端。
+
+The `message` property contains a generic message about the error and the `digest` property contains an automatically generated hash of the error that can be used to match the corresponding error in server-side logs.
+
+"message"该属性包含有关错误的泛型消息，并且该属性包含"digest"自动生成的错误哈希值，该哈希值可用于匹配服务器端日志中的相应错误。
+
+During development, the `Error` object forwarded to the client will be serialized and include the `message` of the original error for easier debugging.
+
+在开发过程中"Error"，转发到客户端的对象将被序列化，并包含 "message" 原始错误，以便于调试。
+
+
+
+
+
+
+
+
+
 
 
 
