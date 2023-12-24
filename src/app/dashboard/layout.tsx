@@ -3,6 +3,9 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  setTimeout(() => {
+    console.log("dashboard layout tinemout");
+  }, 7000);
   return (
     <section>
       DashboardLayout

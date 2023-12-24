@@ -182,7 +182,7 @@ In a nested route, the components of a segment will be nested **inside** the com
 
 ![Nested File Conventions Component Hierarchy](https://nextjs.org/_next/image?url=%2Fdocs%2Flight%2Fnested-file-conventions-component-hierarchy.png&w=3840&q=75&dpl=dpl_BbSpPdzv9Yrsi74LnqWRCSDNSUNs)
 
-## [Colocation公寓合租](https://nextjs.org/docs/app/building-your-application/routing#colocation)
+
 
 In addition to special files, you have the option to colocate your own files (e.g. components, styles, tests, etc) inside folders in the `app` directory.
 
@@ -198,7 +198,7 @@ Learn more about [Project Organization and Colocation](https://nextjs.org/docs/a
 
 详细了解项目组织和主机托管。
 
-## [Advanced Routing Patterns高级路由模式](https://nextjs.org/docs/app/building-your-application/routing#advanced-routing-patterns)
+### [Advanced Routing Patterns高级路由模式](https://nextjs.org/docs/app/building-your-application/routing#advanced-routing-patterns)
 
 The App Router also provides a set of conventions to help you implement more advanced routing patterns. These include:
 
@@ -211,13 +211,13 @@ These patterns allow you to build richer and more complex UIs, democratizing fea
 
 这些模式允许你构建更丰富、更复杂的 UI，使历史上对小型团队和个人开发人员来说很复杂的功能民主化。
 
-## Defining Routes定义路由
+#### Defining Routes定义路由
 
 > We recommend reading the [Routing Fundamentals](https://nextjs.org/docs/app/building-your-application/routing) page before continuing.
 
 This page will guide you through how to define and organize routes in your Next.js application.
 
-### [Creating Routes](https://nextjs.org/docs/app/building-your-application/routing/defining-routes#creating-routes)
+#### [Creating Routes](https://nextjs.org/docs/app/building-your-application/routing/defining-routes#creating-routes)
 
 Next.js uses a file-system based router where **folders** are used to define routes.
 
@@ -233,7 +233,7 @@ In this example, the `/dashboard/analytics` URL path is *not* publicly accessibl
 
 > **Good to know**: `.js`, `.jsx`, or `.tsx` file extensions can be used for special files.
 
-### [Creating UI](https://nextjs.org/docs/app/building-your-application/routing/defining-routes#creating-ui)
+#### [Creating UI](https://nextjs.org/docs/app/building-your-application/routing/defining-routes#creating-ui)
 
 [Special file conventions](https://nextjs.org/docs/app/building-your-application/routing#file-conventions) are used to create UI for each route segment. The most common are [pages](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#pages) to show UI unique to a route, and [layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#layouts) to show UI that is shared across multiple routes.
 
@@ -243,7 +243,7 @@ For example, to create your first page, add a `page.js` file inside the `app` di
 export default function Page() {  return <h1>Hello, Next.js!</h1>}
 ```
 
-## Pages and Layouts
+#### Pages and Layouts
 
 > We recommend reading the [Routing Fundamentals](https://nextjs.org/docs/app/building-your-application/routing) and [Defining Routes](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) pages before continuing.
 
@@ -251,7 +251,7 @@ The App Router inside Next.js 13 introduced new file conventions to easily creat
 
 Next.js 13 中的 App Router 引入了新的文件约定，可以轻松创建[页面](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#pages)、[共享 布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#layouts)和模板。 本页面将指导您如何在 Next.js 应用程序中使用这些特殊文件。
 
-### [Pages](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#pages)
+##### [Pages](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#pages)
 
 A page is UI that is **unique** to a route. You can define pages by exporting a component from a `page.js` file. Use nested folders to [define a route](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and a `page.js` file to make the route publicly accessible.
 
@@ -297,7 +297,7 @@ export default function Page() {
 - Pages are 默认情况下，页面是[Server Components服务器](https://nextjs.org/docs/app/building-your-application/rendering/server-components) by default but can be set to a 但可以设置为[Client Component客户端组件](https://nextjs.org/docs/app/building-your-application/rendering/client-components).。
 - Pages can fetch data. View the 页面可以提取数据。有关详细信息，请查看[Data Fetching“数据获取](https://nextjs.org/docs/app/building-your-application/data-fetching) section for more information.”部分。
 
-### [Layouts布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#layouts)
+##### [Layouts布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#layouts)
 
 A layout is UI that is **shared** between multiple pages. On navigation, layouts preserve state, remain interactive, and do not re-render. Layouts can also be [nested](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#nesting-layouts).
 
@@ -347,7 +347,7 @@ export default function DashboardLayout({
 > - `.js`, 、 `.jsx`, or 或 `.tsx` file extensions can be used for Layouts. 文件扩展名可用于布局。
 > - A A `layout.js` and 和 `page.js` file can be defined in the same folder. The layout will wrap the page. file 可以在同一文件夹中定义。布局将包裹页面。
 
-### [Root Layout (Required)根布局（必需）](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required)
+##### [Root Layout (Required)根布局（必需）](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#root-layout-required)
 
 The root layout is defined at the top level of the `app` directory and applies to all routes. This layout enables you to modify the initial HTML returned from the server.
 
@@ -387,7 +387,7 @@ export default function RootLayout({
 >
 > 从 "pages" 目录迁移：根布局将替换 "_app.js" 和 "_document.js" 文件。 查看迁移指南。
 
-### [Nesting Layouts嵌套布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#nesting-layouts)
+##### [Nesting Layouts嵌套布局](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#nesting-layouts)
 
 Layouts defined inside a folder (e.g. `app/dashboard/layout.js`) apply to specific route segments (e.g. `acme.com/dashboard`) and render when those segments are active. By default, layouts in the file hierarchy are **nested**, which means they wrap child layouts via their `children` prop.
 
@@ -429,7 +429,7 @@ You can use [Route Groups](https://nextjs.org/docs/app/building-your-application
 
 您可以使用路由组选择加入和退出共享布局的特定路由段。
 
-### [Templates模板](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#templates)
+##### [Templates模板](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#templates)
 
 Templates are similar to layouts in that they wrap each child layout or page. Unlike layouts that persist across routes and maintain state, templates create a new instance for each of their children on navigation. This means that when a user navigates between routes that share a template, a new instance of the component is mounted, DOM elements are recreated, state is **not** preserved, and effects are re-synchronized.
 
@@ -477,7 +477,7 @@ Output输出
 </Layout>
 ```
 
-### [Modifying 修改``](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#modifying-head)
+##### [Modifying 修改``](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts#modifying-head)
 
 In the `app` directory, you can modify the `<head>` HTML elements such as `title` and `meta` using the [built-in SEO support](https://nextjs.org/docs/app/building-your-application/optimizing/metadata).
 
@@ -509,7 +509,7 @@ export default function Page() {
 >
 > 您需要知道：您不应手动向"<head>"根布局添加标签，例如 "<title>" 和 "<meta>" 。相反，您应该使用元数据 API，它会自动处理高级要求，例如流式处理和重复数据删除 "<head>" 元素。
 
-## Linking and Navigating
+#### Linking and Navigating
 
 There are two ways to navigate between routes in Next.js:
 
@@ -1003,6 +1003,8 @@ export default function Loading() {
 > **Good to know**: This may be done automatically by the [TypeScript plugin](https://nextjs.org/docs/app/building-your-application/configuring/typescript#typescript-plugin) in the future.
 
 
+
+### Loading UI and Streaming
 
 
 
